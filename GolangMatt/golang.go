@@ -103,6 +103,12 @@ Anytime function mutates a slice thats passed in , we must return a copy.(thats 
 
 Keeping a pointer to an element of slice is risky(as if you mutate slice by appending some elements it address may change due to reallocation).
 
+Good to watch example in minute 17-18 of video. 
+
+//--------- Go class 15 : Newtworking with HTTP   ---------//
+
+
+
 //--------- Go class 17 : OOPs ---------//
 
  An interface specifies abstract behaviour in terms of methods.
@@ -114,17 +120,42 @@ Keeping a pointer to an element of slice is risky(as if you mutate slice by appe
 
 //--------- Go class 18 : Methods and interfaces ---------//
 
+A function can be either pointer receiver or value receiver, but it can not be both.
+
+Composition is union(and) of interfaces.
+
+All the methods for a given type must be declared in the same package where the type is declared.This allows a package importing the type to know all the methods at compoile time.
+
 
 
 
 //--------- Go class 19 : Composition  ---------//
-
+Struct Composition- Building structs from other structs (feild and methods of embedded structs are promoted).
+A struct can embed a pointer to another type; promotion of its feild and methods works in the same way.
 Composition is not a inheritence.
 We can embed a type into another type even if it is not a struct.
 If fields are get promoted then so do the methods.
 
+sorting : At 14 miniute (Three function on type are Len(), Less(i,j), Swap(i,j))
 
+Nothing in Go prevents calling a method with nil receiver.
 
+//--------- Go class 20  : Methods and interfaces in details ---------//
+Nil interface : An interface variable in nil until initialized.
+
+We called error a special type, but its really an interface
+
+type error interface{
+	func Error() string{}
+}
+
+Pointer methods may be called on non-pointers and vice-versa, Go will automatically use * and & as needed.
+A method requiring a pointer receiver may only be called on addressable object (not literals).
+
+If one method of a type take pointer receiver, then all its methods should take pointers.
+And, in general objects of that type are probably not safe to copy.
+
+Method Value : 
 //--------- Go class 22 : Concurrency ---------//
  
 Execution happens in some non-deterministic order 
