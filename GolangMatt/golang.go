@@ -149,7 +149,8 @@ type error interface{
 	func Error() string{}
 }
 
-Pointer methods may be called on non-pointers and vice-versa, Go will automatically use * and & as needed.
+Pointer methods may be called on non-pointers and vice-versa
+**Go will automatically use * and & as needed.**
 A method requiring a pointer receiver may only be called on addressable object (not literals).
 
 If one method of a type take pointer receiver, then all its methods should take pointers.
@@ -157,7 +158,8 @@ And, in general objects of that type are probably not safe to copy.
 
 Method Value : 
 //--------- Go class 22 : Concurrency ---------//
- 
+Parts of program may execute independently in some non-deterministic(partial) order.
+
 Execution happens in some non-deterministic order 
 -Different behaviour on different run even with the same input.
 -Executes independently.
@@ -166,10 +168,157 @@ Concurrency does not necessarily make the program faster, parallelism does.
 We need Concurrency in order to enable parallelism. We have concurrent program, but parallelism happens at runtime if cpu has multiple cores.
 
 
+//--------- Go class 23 : CSP, Goroutines & Channels ---------//
+
+Channels: A channel is a one way communications pipe.
+- Things go in one end, comes out other.
+- In the same order they went in.
+- until the channel is closed.
+- multiple readers and writers can share it safely.
+
+"Don't communicate by sharing memory; instead, share memory by communicating"
+
+Goroutines : A Goroutine is a unit of independent execution (Coroutines).
+- coroutines are not the same as threads. Coroutines are "lightweight threads" managed by the "language runtime", 
+- not the operating system. They offer cooperative multitasking where they pause and resume, 
+- whereas threads are pre-emptively scheduled by the OS. 
+- Coroutines allow running high-concurrency tasks without the heavy overhead of creating many OS threads
+
+//--------- Go class 24 : Select ---------//
+
+We can compose Channels as synchronization primitives.
+Traditional primitives(mutex, conditional variables) can not be composed.
+
+Dont use default case inside a loop -- select will busy, wait and waste cpu.
+
+//--------- Go class 25 : Context ---------//
+
+https://www.reddit.com/r/golang/comments/18mphqt/what_even_is_context/
+
+The Context package offers a common method to cancel requests.
+- Explicit cancellation.
+- Implicit cancellation based on timeout or deadline.
+
+ Context form an immutable tree structure.
+ It is a tree of immutable nodes which can be extended.
+
+Middleware in the context of go is a function that takes a handler and retrns a handler.
 
 
+Contexts are loose bundles of scoped data. This data contains:
+
+- cancellation signals
+
+- deadline (if any)
+
+- any other side-channel data (e.g., request-scoped trace spans) that are serialized and deserialized at distributed system boundaries (cf. gRPC) often through middleware.
+
+Other language ecosystems might use thread-local storage for propagation of this data, but Go prefers to keep such data management explicit (see “clear is better than clever”).
+
+Good resources:
+
+https://go.dev/talks/2014/gotham-context.slide
+
+https://go.dev/blog/context
+
+https://go.dev/blog/context-and-structs (co-authored)
+
+https://google.github.io/styleguide/go/index (additional observations and practices around contexts)
+
+A second critical function that they serve is to enable APIs that perform concurrency behind the scenes to have a unified cancellation protocol to ensure that child routines are interrupted to prevent goroutine resource leaks.
+
+Contexts form trees and can be used to delineate scope (e.g., server, session, operation, etc).
+
+//--------- Go class 26 : Channels in Details ---------//
+
+Buffered channel as a type of counting metaphor.
+
+Channel block unless ready to read or write.
+Channels are unidirectional, but have two ends (which can be passed separately as parameters).
 
 
+//--------- Go class 27 :  Concurrent File Processing ---------//
+
+//--------- Go class 28 :  Conventinal Synchronization ---------//
+
+1. sync.Once
+sync.Once is an object that will perform exactly one action. 
+Even if you call it 10,000 times across 100 different goroutines, 
+the code inside will only run the very first time.
+
+var db *sql.DB
+var once sync.Once
+
+func GetDB() *sql.DB {
+    once.Do(func() {
+        fmt.Println("Initializing Database...")
+        db, _ = sql.Open("postgres", "connection_string")
+    })
+    return db
+}
+
+
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var once sync.Once
+	onceBody := func() {
+		fmt.Println("Only once")
+	}
+	done := make(chan bool)
+	for i := 0; i < 10; i++ {
+		go func() {
+			once.Do(onceBody)
+			done <- true
+		}()
+	}
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+}
+
+/// output is single "Only once"
+
+2. Mutex (Mutual Exclusion)
+Use a lock to ensure only one goroutine can touch the data at a time.
+
+var mu sync.Mutex
+var balance int
+
+func addMoney(amount int) {
+    mu.Lock()         // Lock the door
+    balance += amount
+    mu.Unlock()       // Unlock the door
+}
+
+3. sync/atomic
+
+The atomic package provides low-level optimistic locking. 
+It uses CPU-level instructions (like Compare-and-Swap) to ensure that a variable is read and written in a single, uninterruptible step.
+
+Why use it instead of a Mutex?
+- Performance: Atomic operations are significantly faster than Mutexes because 
+they don not involve the Go scheduler or "parking" goroutines.
+- Lock-Free: It avoids the overhead of managing locks and the risk of forgotten Unlock() calls.
+
+import "sync/atomic"
+
+var ops int64
+
+func increment() {
+    // Safely adds 1 to ops across any number of goroutines
+    atomic.AddInt64(&ops, 1) 
+}
+
+func getOps() int64 {
+    // Safely reads the value
+    return atomic.LoadInt64(&ops)
+}
 
 
 
