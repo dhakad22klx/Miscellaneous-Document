@@ -189,6 +189,13 @@ Goroutines : A Goroutine is a unit of independent execution (Coroutines).
 We can compose Channels as synchronization primitives.
 Traditional primitives(mutex, conditional variables) can not be composed.
 
+The select statement blocks the code and waits for multiple channel operations simultaneously.
+
+A select blocks until one of its cases can run, then it executes that case. 
+It chooses one at random if multiple are ready.
+*****
+A channel not ready for reading is never selected.
+*****
 Dont use default case inside a loop -- select will busy, wait and waste cpu.
 
 //--------- Go class 25 : Context ---------//
@@ -321,7 +328,10 @@ func getOps() int64 {
 }
 
 
+//--------- Go class 30 :  Concurrency Gotchas ---------//
 
 
 
-  
+//--------- Go class 31 :  Odds and Ends  ---------//
+
+//--------- Go class 32 :  Error Handling   ---------//
