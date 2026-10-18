@@ -131,6 +131,9 @@ All the methods for a given type must be declared in the same package where the 
 
 //--------- Go class 19 : Composition  ---------//
 Struct Composition- Building structs from other structs (feild and methods of embedded structs are promoted).
+
+Go has no virtual dispatch. Embedding promotes methods but does not override them polymorphically.
+
 A struct can embed a pointer to another type; promotion of its feild and methods works in the same way.
 Composition is not a inheritence.
 We can embed a type into another type even if it is not a struct.
@@ -193,6 +196,9 @@ The select statement blocks the code and waits for multiple channel operations s
 
 A select blocks until one of its cases can run, then it executes that case. 
 It chooses one at random if multiple are ready.
+
+Its also important to know that an empty select {} blocks forever.
+
 *****
 A channel not ready for reading is never selected.
 *****
