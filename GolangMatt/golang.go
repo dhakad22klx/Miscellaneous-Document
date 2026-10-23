@@ -336,8 +336,47 @@ func getOps() int64 {
 
 //--------- Go class 30 :  Concurrency Gotchas ---------//
 
+Goroutine Leaks : Goroutines hanged on empty or blocked channels are called goroutine leaks. 
+They are not garbage collected and will keep running forever.
 
+When you start a goroutine, always knows when/how it will end or exit. If you dont know, then use context to cancel it.
 
+Goroutines Leaks : 
+
+A **goroutine leak** happens when an unneeded goroutine remains stuck indefinitely, holding resources.
+
+```go
+func getResult() int {
+    ch := make(chan int)
+
+    go func() {
+        time.Sleep(2 * time.Second)
+        ch <- 42 // Blocks forever after the caller times out.
+    }()
+
+    select {
+    case result := <-ch:
+        return result
+    case <-time.After(time.Second):
+        return 0
+    }
+}
+```
+
+After **1 second**, the function returns. After **2 seconds**, the worker tries to send, but no receiver remains.
+
+**Fix for this single-result example:**
+
+```go
+ch := make(chan int, 1)
+```
+
+The worker can leave its result in the buffer and exit, even after the caller returns.
+
+Select Problems : 
+Switch statement, goes from top to bottom, we can put default in between it is just conventionally written last
+
+Inside select statement, available cases are chosen randomly. 
 //--------- Go class 31 :  Odds and Ends  ---------//
 
 //--------- Go class 32 :  Error Handling   ---------//
