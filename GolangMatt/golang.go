@@ -252,6 +252,13 @@ Channels are unidirectional, but have two ends (which can be passed separately a
 
 //--------- Go class 27 :  Concurrent File Processing ---------//
 
+sequential : 
+concurrent : goroutines, and fixed number of workers (using channels to cummunicate).
+concurrent-2 : also process directories concurrently.
+concurrent-3 : avoiding fix number of workers, instead fixing limit on concurrent processing using
+counting semaphore (channel of bool in this case).
+
+
 //--------- Go class 28 :  Conventinal Synchronization ---------//
 
 1. sync.Once
