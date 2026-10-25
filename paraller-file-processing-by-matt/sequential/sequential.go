@@ -1,4 +1,4 @@
-package main
+package sequential
 
 import (
 	"crypto/md5"
@@ -56,7 +56,7 @@ func searchTree(dir string) (results, error) {
 	return hashes, err
 }
 
-func sequential() {
+func Sequential() {
 	if len(os.Args) < 2 {
 		log.Fatal("Missing parameter, provide dir name!")
 	}
